@@ -141,20 +141,6 @@ Calculate winning combinations and payouts for a payline.
 pytest
 ```
 
-### Code Formatting
-```bash
-black slot_game_utils/
-```
-
-### Linting
-```bash
-flake8 slot_game_utils/
-```
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## Contributing
 
 1. Fork the repository
