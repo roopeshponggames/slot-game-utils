@@ -19,7 +19,7 @@ def extract_winline_spinwin_data(
     Args:
         winline_id (int): The unique identifier for the winline
         code (str): Formatted string following the pattern:
-                   <B or TF>-#combination-<1 if win is by wild, else 0>-symbol_id-multiplier
+                   <B or TFn>-#combination-<1 if win is by wild, else 0>-symbol_id-multiplier
                    Example: "B-3-0-02-1"
         win_amount (float): The amount won on this winline
     
@@ -27,6 +27,19 @@ def extract_winline_spinwin_data(
         tuple: A tuple containing two lists:
             - winlines (list): Contains [winline_id, combination_count, symbol_id, win_amount]
             - spinWins (list): Contains [win_amount]
+
+    Example:
+        >>> line = [3, 3, 3, 5, 0]
+        >>> line_id = 2
+        >>> code ='B-3-0-3-1'
+        >>> payTable = pay_table = {
+            3: {0: 50, 1: 30, 2: 25, 3: 20, 4: 15},
+            4: {0: 100, 1: 60, 2: 50, 3: 40, 4: 30},
+            5: {0: 200, 1: 120, 2: 100, 3: 80, 4: 60}
+            }
+        >>> winlines, spinWins = extract_winline_spinwin_data(line_id, code, 20)
+            ([2, 3, 3, 20], [20])
+
     """
     # Initialize return lists
     winlines = []
@@ -56,7 +69,7 @@ def extract_winline_spinwin_data(
         # Log error with descriptive message
         error_msg = (
             "-E- Error parsing code. Expected format: "
-            "<B or TF>-#combination-<1 if win is by wild, else 0>-symbol_id-multiplier  "
+            "<B or TFn>-#combination-<1 if win is by wild, else 0>-symbol_id-multiplier  "
             "Example: B-3-0-02-1"
         )
         print(error_msg)
@@ -97,8 +110,31 @@ def extract_game_detail(
             - win: Total win amount
             - triggerType: Type of game trigger
             - reels: Flattened 1D list of reel symbols
+            - winlines: List of winning line details
             - spinWins: List of individual spin wins
-    
+
+    Example:
+        >>> matrix = [[3, 3, 3, 5, 0], [4, 5, 3, 4, 2], [8, 9, 8, 4, 2]]
+        >>> line = [3, 3, 3, 5, 0]
+        >>> line_id = 1
+        >>> wild_ids = [0]
+        >>> wilds = check_wild_symbols(line, wild_ids)
+        >>> payTable = pay_table = {
+                3: {0: 50, 1: 30, 2: 25, 3: 20, 4: 15},
+                4: {0: 100, 1: 60, 2: 50, 3: 40, 4: 30},
+                5: {0: 200, 1: 120, 2: 100, 3: 80, 4: 60}
+            }
+        >>> win, code, winlines, spinWins = sgu.check_win(line, line_id, wilds, wild_ids, payTable)
+        >>> winlines, spinWins = sgu.extract_winline_spinwin_data(line_id, code, win)
+        >>> total_win = win
+        >>> trigger_type = 'B'
+
+        >>> sgu.extract_game_detail(total_win, trigger_type, matrix, winlines, spinWins)
+            {'win': 20,
+            'triggerType': 'B',
+            'reels': [3, 3, 3, 5, 0, 4, 5, 3, 4, 2, 8, 9, 8, 4, 2],
+            'winlines': [[2, 3, 3, 20]]
+            'spinWins': [20]}
     """
     # Flatten the 2D matrix into a 1D list for easier serialization
     # This converts [[1,2,3], [4,5,6]] into [1,2,3,4,5,6]
@@ -109,6 +145,7 @@ def extract_game_detail(
         "win": total_win,
         "triggerType": trigger_type,
         "reels": flattened_matrix,
+        "winlines": winlines,
         "spinWins": spin_wins
     }
     
@@ -205,6 +242,21 @@ def check_win(
         - length: Number of matching symbols
         - wild_flag: 1 if combination includes wilds, 0 otherwise
         - symbol_id: The symbol that formed the winning combination
+
+    Example:
+        >>> import slot_game_utils as sgu
+
+        >>> line = [3, 3, 3, 5, 0]
+        >>> line_id = 2
+        >>> wild_ids = [0]
+        >>> wilds = sgu.check_wild_symbols(line, wild_ids)
+        >>> payTable = pay_table = {
+                3: {0: 50, 1: 30, 2: 25, 3: 20, 4: 15},
+                4: {0: 100, 1: 60, 2: 50, 3: 40, 4: 30},
+                5: {0: 200, 1: 120, 2: 100, 3: 80, 4: 60}
+            }
+        >>> win, code, winlines, spinWins = sgu.check_win(line, line_id, wilds, wild_ids, payTable)
+        (20, 'B-3-0-3', [2, 3, 3, 20], [20])
     """
     line_len = len(line)
     

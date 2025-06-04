@@ -20,7 +20,7 @@ pip install slot-game-utils
 ```bash
 git clone https://github.com/roopeshponggames/slot-game-utils
 cd slot-game-utils
-pip install -e .
+pip install .
 ```
 
 ### Development Installation
