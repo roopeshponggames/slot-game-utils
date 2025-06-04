@@ -11,7 +11,7 @@ setup(
     description="A utility package for slot game simulations",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/slot-game-utils",
+    url="https://github.com/roopeshponggames/slot-game-utils",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",
